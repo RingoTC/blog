@@ -1,8 +1,8 @@
 baseurl = "https://ringotc.github.io/"
 languageCode = "zh-cn"
-title = "RingoTC"
+title = "RingoTC's Blog"
 theme = "charaka-hugo-theme"
-copyright = "&copy; <a href=\"https://github.com/natarajmb\">Nataraj Basappa</a> 2018"
+copyright = "&copy; <a href=\"https://github.com/RingoTC\">Han Liao</a> 1998"
 disqusShortname = ""
 googleAnalytics = ""
 
@@ -12,17 +12,14 @@ googleAnalytics = ""
   style = "zenburn"
 
 [[params.social]]
-  url = "about.html"
-  fa_icon = "fas fa-info" 
-
-[[params.social]]
-  url = "https://github.com/natarajmb"
+  url = "https://github.com/RingoTC"
   fa_icon = "fab fa-github"
 
-[[params.social]]
-  url = "https://www.linkedin.com/in/natarajmb/"
-  fa_icon = "fab fa-linkedin-in"
 
 [[params.social]]
-  url = "https://twitter.com/natarajmb"
+  url = "https://twitter.com/tcringo"
   fa_icon = "fab fa-twitter"
+
+  [[params.social]]
+  url = "https://weibo.com/u/3922864097"
+  fa_icon = "fab fa-weibo"
