@@ -31,3 +31,60 @@ let vdom = {
     children:'it is a text'
 }
 ```
+这个VDOM与这样的一个标签对应：
+```
+<p id="text">it is a text</p>
+```
+Vue首先要关注的就是如何把一个VDOM对象转换成一个DOM对象。
+
+## 二、VDOM -> DOM
+浏览器为我们提供了操作Document的API，例如，我们可以用如下的代码创建一个HTML元素：
+```
+let p = document.createElementByTagName('p')
+```
+然后将其添加到某个元素（假设为container）下：
+```
+container.appendChild(p)
+```
+要实现VDOM到DOM的转换，其实就是把这个过程封装起来。
+首先，我们要引入render函数，这个函数接收三个参数（标签名，属性，子节点），并返回一个VDOM对象。
+```
+function h(tag,props,children){
+    return {
+        tag,
+        props, // object
+        children // array
+    }
+}
+```
+例如：
+```
+let p = h(
+    tag = 'p',
+    props = {
+        id: 'text'
+    },
+    children = 'it is a text'
+)
+```
+这里的p就是一个VDOM对象。得到VDOM对象后，我们需要将其转换为DOM对象。于是定义mount函数：
+```
+function mount(VNode,container){
+    const {tag,props,children} = VNode
+    // 创建DOM对象
+    VNode.el = document.createElement(tag) // VNode新增一个属性 指向 Node
+    // 设置DOM属性
+    setProps(VNode.el,VNode.props)
+    // DOM下挂载子DOM对象
+    if(typeof children == 'string'){
+        VNode.el.textContent = children
+    }else{
+        for(child in children){
+            mount(child,VNode.el)
+        }
+    }
+    container.appendChild(VNode.el)
+}
+```
+可以看到，children可以是数组或者字符串。数组即表示当前VDOM的所有直接子节点。
+此处将setProps单独实现是为了复用：
