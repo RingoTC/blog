@@ -3,7 +3,7 @@ languageCode = "zh-cn"
 title = "RingoTC's Blog"
 theme = "charaka-hugo-theme"
 copyright = "&copy; <a href=\"https://github.com/RingoTC\">Han Liao</a> 1998"
-disqusShortname = ""
+disqusShortname = "han-liao"
 googleAnalytics = ""
 
 [params]
