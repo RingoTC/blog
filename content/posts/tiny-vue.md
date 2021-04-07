@@ -88,3 +88,165 @@ function mount(VNode,container){
 ```
 可以看到，children可以是数组或者字符串。数组即表示当前VDOM的所有直接子节点。
 此处将setProps单独实现是为了复用：
+function setProps(ele, props) {
+    for (const [key, value] of Object.entries(props)) {
+        ele.setAttribute(key, value);
+    }
+}
+当然，我们也同样需要unmount函数：
+```
+function unmount(VNode){
+    if(VNode.el){
+        document.removeChild(VNode.el)
+    }
+}
+```
+另一个很重要的功能是patch，即比较两个不同VDOM对象的差异，仅对元素进行最小化修改。
+```
+function patch(VNode1,VNode2){
+    // 比较两个不同的VNode，并替换
+    // VNode1 old
+    // VNode2 new
+    // VNode由一个三元组唯一标识 VNode = {tag,props,children}
+    const el = VNode1.el // el指向可能被替换的元素
+    VNode2.el = el
+
+    if(VNode1.tag != VNode2.tag){
+        // 比较tag
+        mount(VNode2,el.parentNode)
+        unmount(VNode1,el.parentNode)
+    }else{
+        // 比较 children
+        if(typeof VNode2.children == 'string'){
+            el.textContent = VNode2.children
+            setProps(el,VNode2.props)
+        }else{
+            patchChildren(VNode1,VNode2) // 父节点相同 递归判断子节点的不同
+        }
+    }
+}
+
+function patchChildren(VNode1,VNode2){
+    const c1 = VNode1.children
+    const c2 = VNode2.children
+    // child1 和 child2 要么是数组 要么 是字符串
+    let commonLen = Math.min(
+        typeof c1 == 'string' ? 0 : c1.length,
+        c2.length,
+    )
+    // child1 child2 都是数组
+        // child1 == child2
+        // child1 < child2 
+        // child1 > child2
+    for(let i=0;i<commonLen;i++){
+        patch(c1[i],c2[i])
+        // 逐个比对
+    }
+    if(c1.length > commonLen){
+        // unmount 多余部分
+        for(let i=commonLen;i<c1.length;i++){
+            unmount(c1[i])
+        }
+    }
+    if(c2.length > commonLen){
+        // mount 多余部分 到 n2.el
+        for(let i=commonLen;i<c2.length;i++){
+            mount(c2[i],n2.el)
+        }
+    }
+}
+```
+此时，我们已经实现了VDOM到DOM的转换。
+现在我们可以理解VDOM为何是有意义的，在直接对DOM进行操作时，很容易产生冗余操作使得DOM重排效率降低。此处我们虽然只实现了最简单的patch函数，但已经可以发现，通过VDOM的比对，再对必要处进行修改，这将使得很多冗余操作被优化。
+数据双向绑定
+现在，我们开始实现数据的双向绑定。正如本文开头的示意图所示，Vue使用了观察者模式。这里我们不对观察者设计模式作过多介绍，仅放出代码：
+```
+function observe(obj){
+    Object.keys(obj).forEach(key => {
+        let internalValue = obj[key]
+        const dep = new Dep()
+        Object.defineProperty(obj,key,{
+            // 对get和set方法进行修饰
+            get(){
+                dep.depend()
+                return internalValue
+            },
+            set(newVal){
+                internalValue = newVal
+                dep.notify()
+            }
+        })
+    })
+}
+
+class Dep{
+    constructor(value){
+        this.subscribers = new Set()
+    }
+    depend(){
+        activeUpdate && this.subscribers.add(activeUpdate)
+    }
+    notify(){
+        this.subscribers.forEach(func => func())
+    }
+}
+
+let activeUpdate = null
+
+function autorun(update){
+    function wrappedUpdate(){
+        activeUpdate = update
+        update()
+        activeUpdate = null
+    }
+    wrappedUpdate()
+}
+```
+如果你对观察者设计模式还不是很熟悉，那么在本文，你仅仅需要知道：观察者模式提供了一种服务，这种服务可以使得变量值的更替触发某些关联函数的执行。
+
+## 三、tiny Vue 例子
+上述两节，我们已经实现了数据双向绑定和VDOM到DOM的转换。这里，我们利用已经实现的功能做一个计时器例子：
+```
+<div id="counter"></div>
+<button id="inc">inc</button>
+
+<script>
+const $ = document.querySelector.bind(document);
+const container = $('#app');
+const incBtn = $('#inc');
+const counterContainer = $('#counter');
+
+incBtn.addEventListener('click', () => {
+  counter.count++;
+});
+
+const counter = {
+  count: 1,
+};
+
+const counterComponent = {
+  render(state) {
+      return h('h1', {}, String(state.count));
+  },
+};
+
+observe(counter); // 数据双向绑定
+
+let oldNode = null;
+autorun(function () {
+  if (oldNode) {
+      const newNode = counterComponent.render(counter);
+      patch(oldNode, newNode);
+      oldNode = newNode;
+  } else {
+      oldNode = counterComponent.render(counter);
+      mount(oldNode, counterContainer);
+  }
+});
+
+setInterval(()=>{
+	counter.count++
+},500)
+</script>
+```
+在线演示：[JSFiddle](https://jsfiddle.net/e2qvfy63/5/)
