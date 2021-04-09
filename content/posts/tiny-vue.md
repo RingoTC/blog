@@ -8,7 +8,7 @@ draft: false
 
 ## 一、vue的运行基础
 相信学过Vue的同学都看过这张图片：
-![vue示意图](http://localhost:1313/images/tiny-vue/vue.jpg)
+![vue示意图](http://ringotc.github.io/images/tiny-vue/vue.jpg)
 
 在Vue中，最重要的三个组件是：Reactivity Module、Compiler Module、Renderer Module，这三个Module的功能如下：
 - Reactivity Module：使得JavaScript对象的值的更改能够立即被渲染在HTML上。也就是数据的双向绑定。
