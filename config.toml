@@ -20,6 +20,10 @@ googleAnalytics = ""
   url = "https://twitter.com/tcringo"
   fa_icon = "fab fa-twitter"
 
-  [[params.social]]
+[[params.social]]
   url = "https://weibo.com/u/3922864097"
   fa_icon = "fab fa-weibo"
+
+[[params.social]]
+  url = "/links"
+  fa_icon = "fas fa-users"
