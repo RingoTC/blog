@@ -8,5 +8,7 @@ draft: false
 
 > [Gee Law](https://geelaw.blog/) 研究方向：密码学
 
+> [Lazy_V's Blog](http://www.zhangkexuan.cn/) 研究方向：游戏开发
+
 > 欢迎邮件 or 在下方留言添加你的站点
 
