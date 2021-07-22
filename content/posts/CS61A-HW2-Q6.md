@@ -1,7 +1,6 @@
 ---
 title: "题解：CS61A-HW2-Q6：make_anonymous_factorial"
 date: 2021-07-21T21:10:29+08:00
-draft: true
 ---
 
 ### 题目要求
